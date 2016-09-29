@@ -173,7 +173,6 @@ gen_network_configuration()
         MTU=$(get_mtu)
         GATEWAY=$(get_gateway)
 if [ "${DEFAULT_ROUTE}" = "${GATEWAY}" ] ;then
-#si le dev courant n'est pas la gw
   if [ "${DEV}" != "${DEFAULT_DEV}" ];then
 #  echo "convert to alias DEV=[${DEV}] IFACE_NUM=[${IFACE_NUM}] to DEV=[${DEFAULT_DEV}:${IFACE_NUM}]"
   DEV="${DEFAULT_DEV}:${IFACE_NUM}"
