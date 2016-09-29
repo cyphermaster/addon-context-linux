@@ -246,7 +246,8 @@ configure_network()
 deactivate_network()
 {
     . /etc/os-release
-    if [ $ID = "ubuntu" ]; then
+    case $ID in
+     ubuntu|debian)
         IFACES=`/sbin/ifquery --list -a`
 
         for i in $IFACES; do
@@ -255,9 +256,10 @@ deactivate_network()
                 /sbin/ip addr flush dev $i
             fi
         done
-    else
+        ;;
+        *)
         service networking stop
-    fi
+esac
 }
 
 activate_network()
