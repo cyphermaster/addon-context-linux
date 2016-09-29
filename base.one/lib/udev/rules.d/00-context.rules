@@ -1,1 +1,2 @@
 SUBSYSTEM=="net", ACTION=="add", RUN="/usr/sbin/one-context-reconfigure"
+SUBSYSTEM=="net", ACTION=="remove", RUN="/usr/sbin/one-context-reconfigure"

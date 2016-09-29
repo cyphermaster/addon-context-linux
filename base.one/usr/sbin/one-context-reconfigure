@@ -21,9 +21,9 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin
 
 (
 
-echo "Waiting one minute to reconfigure the machine"
+echo "Waiting to reconfigure the machine"
 
-sleep 60
+sleep 40
 
 echo "Reconfiguring"
 

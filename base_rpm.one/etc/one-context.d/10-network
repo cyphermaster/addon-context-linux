@@ -146,14 +146,22 @@ get_dev()
 
     echo "$list" | grep "$mac" | cut -d' ' -f1 | tail -n1
 }
-
+get_default_route()
+{
+    ip route show | awk '/default/ {print $3}'
+}
+get_default_dev()
+{
+    ip route show | awk '/default/ {print $5}'
+}
 gen_network_configuration()
 {
     INTERFACE_MAC=$(get_interface_mac)
     CONTEXT_INTERFACES=$(get_context_interfaces)
     GATEWAY_IFACE_NUM=$(echo "$GATEWAY_IFACE" | sed 's/^ETH//')
-
     for interface in $CONTEXT_INTERFACES; do
+        DEFAULT_ROUTE=$(get_default_route)
+        DEFAULT_DEV=$(get_default_dev)
         UPCASE_DEV=$interface
         MAC=$(get_iface_var "MAC")
         DEV=$(get_dev "$INTERFACE_MAC" "$MAC")
@@ -164,7 +172,13 @@ gen_network_configuration()
         MASK=$(get_mask)
         MTU=$(get_mtu)
         GATEWAY=$(get_gateway)
-
+if [ "${DEFAULT_ROUTE}" = "${GATEWAY}" ] ;then
+  if [ "${DEV}" != "${DEFAULT_DEV}" ];then
+#  echo "convert to alias DEV=[${DEV}] IFACE_NUM=[${IFACE_NUM}] to DEV=[${DEFAULT_DEV}:${IFACE_NUM}]"
+  DEV="${DEFAULT_DEV}:${IFACE_NUM}"
+  #unset GATEWAY
+  fi
+fi
         IPV6=$(get_iface_var "IPV6")
         [[ -z $IPV6 ]] && IPV6=$(get_iface_var "IP6")
         GATEWAY6=$(get_gateway6)
@@ -202,5 +216,6 @@ configure_network()
 
 [ -z "$(env | cut -d= -f1 | grep -E '^ETH[0-9]+_IPV*6*')" ] && exit 0
 
+rm -f /etc/sysconfig/network-scripts/ifcfg-eth*
 configure_network
 
