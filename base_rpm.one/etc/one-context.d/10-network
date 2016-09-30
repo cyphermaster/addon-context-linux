@@ -216,5 +216,6 @@ configure_network()
 
 [ -z "$(env | cut -d= -f1 | grep -E '^ETH[0-9]+_IPV*6*')" ] && exit 0
 
+rm -f /etc/sysconfig/network-scripts/ifcfg-eth*
 configure_network
 
