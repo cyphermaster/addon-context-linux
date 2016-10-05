@@ -27,7 +27,7 @@ mac2ip() {
 
     ip="$ip_a.$ip_b.$ip_c.$ip_d"
 
-    echo $ip
+    echo "$ip"
 }
 
 # Gets the network part of an IP
@@ -35,10 +35,10 @@ get_network() {
     network=$(get_iface_var "NETWORK")
 
     if [ -z "$network" ]; then
-        network="$(echo $IP | cut -d'.' -f1,2,3).0"
+        network="$(echo "$IP" | cut -d'.' -f1,2,3).0"
     fi
 
-    echo $network
+    echo "$network"
 }
 
 # Gets the network mask
@@ -56,7 +56,7 @@ get_mask() {
 get_mtu() {
     mtu=$(get_iface_var "MTU")
 
-    echo $mtu
+    echo "$mtu"
 }
 
 is_gateway() {
@@ -72,7 +72,7 @@ get_gateway() {
     if is_gateway; then
         gateway=$(get_iface_var "GATEWAY")
 
-        echo $gateway
+        echo "$gateway"
     fi
 }
 
@@ -86,14 +86,14 @@ get_gateway6() {
 get_ip() {
     ip=$(get_iface_var "IP")
 
-    echo $ip
+    echo "$ip"
 }
 
 get_iface_var() {
     var_name="${UPCASE_DEV}_$1"
     var=$(eval "echo \"\${$var_name}\"")
 
-    echo $var
+    echo "$var"
 }
 
 export DNS_VARIABLES="DNS $(env | sed 's/=.*$//' | grep -E '^ETH[0-9]+_DNS$' | sort)"
@@ -138,7 +138,7 @@ EOT
         echo "  gateway $GATEWAY"
     fi
     #only for first interface
-    if [ "eth0" == $DEV ]; then
+    if [ "eth0" == "$DEV" ]; then
         if [ -n "$nameservers" ]; then
             echo "  dns-nameservers $nameservers"
         fi
@@ -185,6 +185,14 @@ get_dev()
 
     echo "$list" | grep "$mac" | cut -d' ' -f1 | tail -n1
 }
+get_default_route()
+{
+    ip route show | awk '/default/ {print $3}'
+}
+get_default_dev()
+{
+    ip route show | awk '/default/ {print $5}'
+}
 
 gen_network_configuration()
 {
@@ -197,11 +205,11 @@ EOT
     INTERFACE_MAC=$(get_interface_mac)
     CONTEXT_INTERFACES=$(get_context_interfaces)
     GATEWAY_IFACE_NUM=$(echo "$GATEWAY_IFACE" | sed 's/^ETH//')
-    DEFAULT_ROUTE=$(get_default_route)
-    DEFAULT_DEV=$(get_default_dev)
 
 
     for interface in $CONTEXT_INTERFACES; do
+        DEFAULT_ROUTE=$(get_default_route)
+        DEFAULT_DEV=$(get_default_dev)
         UPCASE_DEV=$interface
         MAC=$(get_iface_var "MAC")
         DEV=$(get_dev "$INTERFACE_MAC" "$MAC")
@@ -212,13 +220,13 @@ EOT
         MASK=$(get_mask)
         MTU=$(get_mtu)
         GATEWAY=$(get_gateway)
-if [ "${DEFAULT_ROUTE}" = "${GATEWAY}" ] ;then
-  if [ "${DEV}" != "${DEFAULT_DEV}" ];then
-#  echo "convert to alias DEV=[${DEV}] IFACE_NUM=[${IFACE_NUM}] to DEV=[${DEFAULT_DEV}:${IFACE_NUM}]"
-  DEV="${DEFAULT_DEV}:${IFACE_NUM}"
-  #unset GATEWAY
-  fi
-fi
+        if [ "${DEFAULT_ROUTE}" = "${GATEWAY}" ] ;then
+          if [ "${DEV}" != "${DEFAULT_DEV}" ];then
+        #  echo "convert to alias DEV=[${DEV}] IFACE_NUM=[${IFACE_NUM}] to DEV=[${DEFAULT_DEV}:${IFACE_NUM}]"
+          DEV="${DEFAULT_DEV}:${IFACE_NUM}"
+          #unset GATEWAY
+          fi
+        fi
 
 
         IPV6=$(get_iface_var "IPV6")
@@ -269,14 +277,6 @@ activate_network()
     for i in $IFACES; do
         /sbin/ifup $i
     done
-}
-get_default_route()
-{
-    ip route show | awk '/default/ {print $3}'
-}
-get_default_dev()
-{
-    ip route show | awk '/default/ {print $5}'
 }
 
 

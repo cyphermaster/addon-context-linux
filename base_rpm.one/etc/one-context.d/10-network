@@ -159,9 +159,9 @@ gen_network_configuration()
     INTERFACE_MAC=$(get_interface_mac)
     CONTEXT_INTERFACES=$(get_context_interfaces)
     GATEWAY_IFACE_NUM=$(echo "$GATEWAY_IFACE" | sed 's/^ETH//')
-    DEFAULT_ROUTE=$(get_default_route)
-    DEFAULT_DEV=$(get_default_dev)
     for interface in $CONTEXT_INTERFACES; do
+        DEFAULT_ROUTE=$(get_default_route)
+        DEFAULT_DEV=$(get_default_dev)
         UPCASE_DEV=$interface
         MAC=$(get_iface_var "MAC")
         DEV=$(get_dev "$INTERFACE_MAC" "$MAC")
